@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.project.Ciutada" table="Ciutada">
+        <!-- This class contains the Ciutada detail. -->
+        <id name="id" type="long" column="id">
+            <generator class="native" />
+        </id>
+        <property name="ciutatId" column="ciutatId" type="long" />
+        <property name="nom" column="nom" type="string" />
+        <property name="cognom" column="cognom" type="string" />
+        <property name="edat" column="edat" type="int" />
+    </class>
+</hibernate-mapping>

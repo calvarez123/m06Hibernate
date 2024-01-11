@@ -14,6 +14,8 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+
+
 public class Manager {
 
     private static SessionFactory factory; 
@@ -167,17 +169,20 @@ public class Manager {
         return result;
     }
 
-    public static <T> String collectionToString(Class<? extends T> clazz, Collection<?> collection){
-        String txt = "";
-        for(Object obj: collection) {
+    public static <T> String collectionToString(Class<? extends T> clazz, Collection<?> collection) {
+        if (collection == null || collection.isEmpty()) {
+            return "No records found.";
+        }
+    
+        StringBuilder txt = new StringBuilder();
+        for (Object obj : collection) {
             T cObj = clazz.cast(obj);
-            txt += "\n" + cObj.toString();
+            txt.append("\n").append(cObj.toString());
         }
-        if (txt.substring(0, 1).compareTo("\n") == 0) {
-            txt = txt.substring(1);
-        }
-        return txt;
+    
+        return txt.toString().substring(1); // Remove the leading newline character
     }
+    
 
     public static void queryUpdate (String queryString) {
         Session session = factory.openSession();
@@ -215,20 +220,122 @@ public class Manager {
         return result;
     }
 
-    public static String tableToString (List<Object[]> rows) {
-        String txt = "";
+    public static String tableToString(List<Object[]> rows) {
+        StringBuilder txt = new StringBuilder();
+    
         for (Object[] row : rows) {
             for (Object cell : row) {
-                txt += cell.toString() + ", ";
+                txt.append(cell.toString()).append(", ");
             }
-            if (txt.length() >= 2 && txt.substring(txt.length() - 2).compareTo(", ") == 0) {
-                txt = txt.substring(0, txt.length() - 2);
+    
+            int length = txt.length();
+            if (length >= 2 && txt.substring(length - 2).equals(", ")) {
+                txt.delete(length - 2, length);
             }
-            txt += "\n";
+    
+            txt.append("\n");
         }
-        if (txt.length() >= 2) {
-            txt =  txt.substring(0, txt.length() - 2);
+    
+        int finalLength = txt.length();
+        if (finalLength >= 2) {
+            txt.delete(finalLength - 2, finalLength);
         }
-        return txt;
+    
+        return txt.toString();
+    }
+    
+    //---------------------------------------------------------------------------------------------------------
+    // Inside Manager class
+public static Ciutat addCiutat(String nom, String pais, int codiPostal) {
+    Session session = factory.openSession();
+    Transaction tx = null;
+    Ciutat result = null;
+    try {
+        tx = session.beginTransaction();
+        result = new Ciutat(nom, pais, codiPostal);
+        session.save(result);
+        tx.commit();
+    } catch (HibernateException e) {
+        if (tx != null) tx.rollback();
+        e.printStackTrace();
+    } finally {
+        session.close();
+    }
+    return result;
+}
+
+
+public static Ciutada addCiutada(long ciutatId, String nom, String cognom, int edat) {
+    Session session = factory.openSession();
+    Transaction tx = null;
+    Ciutada result = null;
+    try {
+        tx = session.beginTransaction();
+        result = new Ciutada(ciutatId, nom, cognom, edat);
+        session.save(result);
+        tx.commit();
+    } catch (HibernateException e) {
+        if (tx != null) tx.rollback();
+        e.printStackTrace();
+    } finally {
+        session.close();
+    }
+    return result;
+}
+
+
+    public static void updateCiutat(long ciutatId, String nom, String pais, int codiPostal) {
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            Ciutat obj = (Ciutat) session.get(Ciutat.class, ciutatId);
+            obj.setNom(nom);
+            obj.setPais(pais);
+            obj.setCodiPostal(codiPostal);
+            session.update(obj);
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+    }
+
+    public static void updateCiutada(long ciutadaId, long ciutatId, String nom, String cognom, int edat) {
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            Ciutada obj = (Ciutada) session.get(Ciutada.class, ciutadaId);
+            obj.setCiutatId(ciutatId);
+            obj.setNom(nom);
+            obj.setCognom(cognom);
+            obj.setEdat(edat);
+            session.update(obj);
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+    }
+
+    public static void deleteCiutat(long ciutatId) {
+        delete(Ciutat.class, ciutatId);
+    }
+
+    public static void deleteCiutada(long ciutadaId) {
+        delete(Ciutada.class, ciutadaId);
+    }
+
+    public static Ciutat getCiutatById(long ciutatId) {
+        return getById(Ciutat.class, ciutatId);
+    }
+
+    public static Ciutada getCiutadaById(long ciutadaId) {
+        return getById(Ciutada.class, ciutadaId);
     }
 }

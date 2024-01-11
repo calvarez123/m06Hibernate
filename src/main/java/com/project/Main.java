@@ -1,61 +1,61 @@
 package com.project;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-
-/*
-
-Help: https://www.baeldung.com/hibernate-one-to-many
-
-*/
+import java.util.Collection;
+import java.util.List;
 
 public class Main {
 
-   public static void main(String[] args) {
-      
-      String basePath = System.getProperty("user.dir") + "/data/";
+    public static void main(String[] args) {
+        Manager.createSessionFactory();
 
-      // Crear la carpeta 'data' si no existeix
-      File dir = new File(basePath);
-      if (!dir.exists()){
-         if(!dir.mkdirs()) {
-               System.out.println("Error en la creació de la carpeta 'data'");
-         }
-      }
 
-      Manager.createSessionFactory();
+ Ciutat ciu0 = Manager.addCiutat("Vancouver", "Canada", 98661);
+ Ciutat ciu1 = Manager.addCiutat("Växjö", "Suècia", 35220);
+ Ciutat ciu2 = Manager.addCiutat("Kyoto", "Canada", 5200461);
 
-      Cart refCart1 = Manager.addCart("Cart 1");
-      Cart refCart2 = Manager.addCart("Cart 2");
-      Cart refCart3 = Manager.addCart("Cart 3");
 
-      Item refItem1 = Manager.addItem("Item 1");
-      Item refItem2 = Manager.addItem("Item 2");
-      Item refItem3 = Manager.addItem("Item 3");
-      Item refItem4 = Manager.addItem("Item 4");
-      Item refItem5 = Manager.addItem("Item 5");
-      Item refItem6 = Manager.addItem("Item 6");
+ Manager.addCiutada(ciu0.getCiutatId(), "Tony", "Happy", 20);
+ Ciutada pep1 = Manager.addCiutada(ciu1.getCiutatId(), "Monica", "Mouse", 22);
+ Manager.addCiutada(ciu1.getCiutatId(), "Eirika", "Erjo", 44);
+ Ciutada pep3 = Manager.addCiutada(ciu1.getCiutatId(), "Ven", "Enrison", 48);
+ Manager.addCiutada(ciu2.getCiutatId(), "Akira", "Akiko", 62);
+ Ciutada pep5 = Manager.addCiutada(ciu2.getCiutatId(), "Masako", "Kubo", 66);
+    
+ Collection<?> ciutats = Manager.listCollection(Ciutat.class, "");
+ for(Object obj: ciutats) {
+    Ciutat cObj = (Ciutat) obj;
+    System.out.println("Ciutadans de " + cObj.getNom() + ":");
+    Collection<?> ciutadans = Manager.listCollection(Ciutada.class, 
+                                      "ciutatId=" + cObj.getCiutatId());
+    for(Object obj2: ciutadans) {
+       Ciutada cObj2 = (Ciutada) obj2;
+       System.out.println("    " + cObj2.toString());
+    }
+ }
 
-      Set<Item> itemsCard1 = new HashSet<Item>();
-      itemsCard1.add(refItem1);
-      itemsCard1.add(refItem2);
-      itemsCard1.add(refItem3);
 
-      Manager.updateCart(refCart1.getCartId(), refCart1.getType(), itemsCard1);
+  Manager.delete(Ciutada.class, pep1.getId());
+  Manager.delete(Ciutada.class, pep3.getId());
+  Manager.delete(Ciutada.class, pep5.getId());
+  Manager.delete(Ciutat.class, ciu1.getCiutatId());
 
-      Set<Item> itemsCard2 = new HashSet<Item>();
-      itemsCard2.add(refItem4);
-      itemsCard2.add(refItem5);
 
-      Manager.updateCart(refCart2.getCartId(), refCart2.getType(), itemsCard2);
+  System.out.println("Ciutats:");
+  Collection<?> llista = Manager.listCollection(Ciutat.class, "");
+  for(Object obj: ciutats) {
+     Ciutat cObj = (Ciutat) obj;
+     System.out.println("  " + cObj);
+  }
+  System.out.println("Ciutadans:");
+  llista = Manager.listCollection(Ciutada.class, "");
+  for(Object obj: llista) {
+     Ciutada cObj = (Ciutada) obj;
+     System.out.println("  " + cObj);
+  }
 
-      Manager.delete(Cart.class, refCart3.getCartId());
-      Manager.delete(Item.class, refItem6.getItemId());
 
-      System.out.println(Manager.collectionToString(Cart.class, Manager.listCollection(Cart.class, "")));
-      System.out.println(Manager.collectionToString(Item.class, Manager.listCollection(Item.class, "")));
+  Manager.close();
+    }
 
-      Manager.close();
-   }
+ 
 }
